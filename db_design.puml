@@ -1,0 +1,239 @@
+@startuml
+
+entity User {
+    * id BIGINT PRIMARY KEY
+    * user_type INT
+    ' Admin 1
+    * username VARCHAR(255)
+    * first_name VARCHAR(255)
+    * last_name VARCHAR(255)
+    * password TEXT
+    * email VARCHAR(255)
+    * umkm_status BOOLEAN
+    --
+    phone_number VARCHAR(255)
+    address TEXT
+    profile_img TEXT
+    --
+    * created DATE
+    * updated DATE
+}
+
+entity User_Carts {
+    * id BIGINT PRIMARY KEY
+    --
+    * user_id BIGINT FOUREIGN(User.id)
+    * product_id BIGINT FOUREIGN(Product.id)
+    * qty INT
+    message VARCHAR
+    --
+    * created DATE
+    * updated DATE
+}
+
+entity UMKM {
+    * id BIGINT PRIMARY KEY
+    * name VARCHAR(255)
+    * status BOOLEAN
+    --
+    city TEXT
+    district TEXT
+    address TEXT
+    profile_img TEXT
+    --
+    * user_id BIGINT FOUREIGN(User.id)
+    --
+    * created DATE
+    * updated DATE
+}
+
+entity Bank_Account {
+    * id BIGINT PRIMARY KEY
+    * bank_name VARCHAR(255)
+    * account_number VARCHAR(255)
+    * account_name VARCHAR(255)
+    * status VARCHAR(255)
+    ' request
+    ' acc
+    ' revoked
+    ' rejected
+    --
+    * user_id BIGINT FOUREIGN(User.id)
+    --
+    * created DATE
+    * updated DATE
+}
+
+entity Product {
+    * id BIGINT PRIMARY KEY
+    * name VARCHAR(255)
+    * name_slug VARCHAR(255)
+    * stock INT
+    * discount FLOAT
+    * price INT
+    * description TEXT
+    * status VARCHAR(255)
+    ' active
+    ' disabled
+    ' revoked
+    * base_delivery_price INT
+    --
+    * umkm_id BIGINT FOUREIGN(UMKM.id)
+    --
+    * created DATE
+    * updated DATE
+}
+
+entity Product_Image {
+    * id BIGINT PRIMARY KEY
+    * image TEXT
+    --
+    * product_id BIGINT FOUREIGN(Product.id)
+    --
+    * created DATE
+    * updated DATE
+}
+
+entity Product_Category {
+    * id BIGINT PRIMARY KEY
+    * name VARCHAR(255)
+    * name_slug VARCHAR(255)
+    --
+    * created DATE
+    * updated DATE
+}
+
+entity Product_Categories {
+    * id BIGINT PRIMARY KEY
+    --
+    * category_id BIGINT FOUREIGN(Product_Category.id)
+    * product_id BIGINT FOUREIGN(Product.id)
+    --
+    * created DATE
+    * updated DATE
+
+}
+
+entity Umkm_Registrations {
+    * id BIGINT PRIMARY KEY
+    --
+    * user_id BIGINT FOUREIGN(User.id)
+    * status VARCHAR(255) 
+    ' request
+    ' acc
+    ' rejected
+    ' revoked
+    message VARCHAR(255)
+    --
+    * created DATE
+    * updated DATE
+
+}
+
+entity User_Order {
+    * id UUID PRIMARY KEY
+    --
+    * buyer_id BIGINT FOUREIGN(User.id)
+    * umkm_id BIGINT FOUREIGN(UMKM.id)
+    --
+    * order_address TEXT
+    * payment_status VARCHAR
+    ' pending
+    ' ...
+    * order_status VARCHAR
+    ' pending
+    ' progress
+    ' settlement
+    ' abort
+    * payment_amount INT
+    payment_token TEXT
+    --
+    * created DATE
+    * updated DATE
+}
+
+entity User_Order_Item {
+    * id UUID PRIMARY KEY
+    --
+    * order_id UUID FOUREIGN(User_Order.id)
+    * product_id BIGINT FOUREIGN(Product.id)
+    --
+    * qty INT
+    * amount INT
+    * delivery_status VARCHAR
+    ' pending
+    ' processed
+    ' onsite
+    ' return
+    message VARCHAR
+    --
+    * created DATE
+    * updated DATE
+}
+
+entity Success_Transaction {
+    * id UUID PRIMARY KEY
+    --
+    * order_id UUID FOUREIGN(User_Order.id)
+    * seller_payment_status VARCHAR
+    ' pending 
+    ' settlement 
+    --
+    * created DATE
+    * updated DATE
+}
+
+entity Refund_Order {
+    * id UUID PRIMARY KEY
+    --
+    * order_id UUID FOUREIGN(User_Order.id)
+    * bank_name VARCHAR(255)
+    * account_number VARCHAR(255)
+    * account_name VARCHAR(255)
+    * payment_status VARCHAR
+    ' pending
+    ' settlement
+    refund_description TEXT
+    --
+    * created DATE
+    * updated DATE
+}
+
+entity Delivery_Prices {
+    * id BIGINT PRIMARY KEY
+    --
+    * id product_id BIGINT FOUREIGN(Product.id)
+    --
+    * location VARCHAR(255)
+    * delivery_price INT
+    --
+    * created DATE
+    * updated DATE
+}
+
+
+' Relation
+User ||--o{ UMKM
+User ||--o{ Bank_Account
+User ||--o{ User_Carts
+User ||--o| Umkm_Registrations
+User ||--o{ User_Order
+
+UMKM ||--o{ Product
+UMKM ||--o{ User_Order
+Product ||--o{ User_Order_Item
+
+Product ||--o{ Product_Image
+Product ||--o{ Product_Categories
+Product ||--o{ Delivery_Prices
+
+Product_Categories }o--|| Product_Category
+
+Product ||--o{ User_Carts
+
+User_Order ||--|{ User_Order_Item
+
+Success_Transaction |o--|| User_Order
+Refund_Order |o--|| User_Order
+
+@enduml
